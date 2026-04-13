@@ -56,14 +56,16 @@ make apply-redirect
 | hello.jamespacheco.dev | Smoke test / ingress validation |
 
 ## Repository Structure
+```
 homelab/
-cert-manager/     # ClusterIssuers and Certificate resources
-monitoring/       # Grafana ingress
-ingress/          # Catch-all redirect middleware and IngressRoute
-app/
-hello/          # Smoke test deployment (nginx)
-.env.example      # Required environment variables
-Makefile          # Template rendering and apply targets
+├── cert-manager/     # ClusterIssuers and Certificate resources
+├── monitoring/       # Grafana ingress
+├── ingress/          # Catch-all redirect middleware and IngressRoute
+├── app/
+│   └── hello/        # Smoke test deployment (nginx)
+├── .env.example      # Required environment variables
+└── Makefile          # Template rendering and apply targets
+```
 
 ## Design Decisions
 
