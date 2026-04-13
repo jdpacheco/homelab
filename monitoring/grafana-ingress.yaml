@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - grafana.jamespacheco.dev
+    secretName: jamespacheco-dev-tls
+  rules:
+  - host: grafana.jamespacheco.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: monitoring-grafana
+            port:
+              number: 80
