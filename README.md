@@ -32,6 +32,7 @@ host router. Private cluster access (kubectl, registry) goes through Tailscale.
 - `helm` installed
 - `envsubst` available (`gettext` package)
 - `.env` populated from `.env.example`
+- Helm repos added — run `make helm-add-repos` once on a fresh machine before `make helm-all`
 
 ## Usage
 

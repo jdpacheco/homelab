@@ -1,8 +1,33 @@
 include .env
 export
 
-.PHONY: apply-cert-manager apply-monitoring apply-hello apply-redirect apply-all dry-run diff
+.PHONY: apply-cert-manager apply-monitoring apply-hello apply-redirect apply-all dry-run diff \
+        helm-add-repos helm-cert-manager helm-monitoring helm-reflector helm-all
 
+# Helm
+helm-add-repos:
+	helm repo add jetstack https://charts.jetstack.io
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+	helm repo add emberstack https://emberstack.github.io/helm-charts
+	helm repo update
+
+helm-cert-manager:
+	helm upgrade --install cert-manager jetstack/cert-manager \
+		--namespace cert-manager --create-namespace \
+		--set crds.enabled=true
+
+helm-monitoring:
+	helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+		--namespace monitoring --create-namespace
+
+helm-reflector:
+	helm upgrade --install reflector emberstack/reflector \
+		--namespace kube-system
+
+# Run helm-add-repos first if this is a fresh machine
+helm-all: helm-cert-manager helm-monitoring helm-reflector
+
+# Manifests
 apply-cert-manager:
 	envsubst < cert-manager/clusterissuer-stage.yaml.tpl | kubectl apply -f -
 	envsubst < cert-manager/clusterissuer-prod.yaml.tpl  | kubectl apply -f -
