@@ -65,9 +65,46 @@ homelab/
 ├── ingress/          # Catch-all redirect middleware and IngressRoute
 ├── app/
 │   └── hello/        # Smoke test deployment (nginx)
+├── scripts/
+│   └── create-gha-kubeconfig.sh  # Scoped kubeconfig for GitHub Actions
 ├── .env.example      # Required environment variables
 └── Makefile          # Template rendering and apply targets
 ```
+
+## Connecting an App to the Platform
+
+Apps live in their own repos and manage their own k8s manifests. This repo
+provides the platform they run on. When onboarding a new app:
+
+### What the platform provides automatically
+
+- **TLS** — the wildcard `*.jamespacheco.dev` cert covers any subdomain.
+  reflector mirrors it to the app's namespace; no cert request needed.
+- **Ingress** — Traefik is already running. Point an Ingress at it and traffic flows.
+- **Catch-all redirect** — any unmatched subdomain redirects to the landing page.
+
+### Set up GitHub Actions access
+
+Generate a scoped kubeconfig for the app's namespace:
+
+```bash
+./scripts/create-gha-kubeconfig.sh <namespace>
+```
+
+This creates a `github-actions` ServiceAccount with namespace-scoped RBAC
+(deployments patch/update, pods read, ingresses patch/update, services/configmaps
+read), generates a 1-year token, and prints a base64-encoded kubeconfig.
+
+Add the output as a GitHub Actions secret named `KUBECONFIG_<NAMESPACE>` (the
+script prints the exact name).
+
+**Connectivity:** the kubeconfig server URL is the cluster's Tailscale IP. GitHub
+hosted runners cannot reach it by default. Use either:
+- A self-hosted runner on the homelab, or
+- The [Tailscale GitHub Action](https://tailscale.com/kb/1276/github-actions) to
+  join the runner to your tailnet before deploying.
+
+**Token rotation:** tokens expire after 1 year. Re-run the script to rotate.
 
 ## Design Decisions
 
